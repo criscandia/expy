@@ -18,16 +18,15 @@ data = pd.read_csv('vw.csv',
                     squeeze = True,
                     usecols = ['full_name', 'phone_number', 'email'],
                     header= 0)
-                     #Youll want to change the .xlsx to .csv
 
 depth = len(data['full_name'])
 
-for i in range (0,depth):
+for i in range (0, depth):
     driver.find_element_by_xpath("//input[@id='field-2b40cec773350be845715b976924fc96-0']").send_keys(data['full_name'][i])
     driver.find_element_by_xpath("//input[@id='field-2b40cec773350be845715b976924fc96-1']").send_keys(data['phone_number'][i])
     driver.find_element_by_xpath("//input[@id='field-2b40cec773350be845715b976924fc96-2']").send_keys(data['email'][i])
     driver.find_element_by_xpath("//select['field-2b40cec773350be845715b976924fc96-3']/option[text()='Nuevo T-CROSS']").click()
-    
+    driver.find_element_by_xpath('/html/body/main/section[1]/div[3]/div/div[3]/form/div[2]').click()
 
 
 
