@@ -1,33 +1,51 @@
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
 import pandas as pd
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
-from selenium.webdriver.support.ui import Select
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.ui import Select, WebDriverWait
 
-binary = FirefoxBinary('/usr/bin/firefox')
-driver = webdriver.Firefox()
-driver.get('https://campaigns.automotoresonline.com/dietrich/1/')
+URL = 'https://campaigns.automotoresonline.com/dietrich/1/'
+FILENAME = 'vw.csv'
+TIMEOUT = 15
 
+data = pd.read_csv(FILENAME,
+    encoding='UTF-16',
+    index_col=False,
+    #delim_whitespace=True,
+    sep='\t',
+    squeeze=True,
+    usecols=['full_name', 'phone_number', 'email'],
+    header=0,
+    )
 
+options = Options()
+options.headless = True
+driver = webdriver.Firefox(options=options)
+driver.get(URL)
 
-data = pd.read_csv('vw.csv',
-                    encoding= 'UTF-16',
-                    #delim_whitespace=True,
-                    sep = '\t',
-                    squeeze = True,
-                    usecols = ['full_name', 'phone_number', 'email'],
-                    header= 0)
+for index, row in data.iterrows():
+    wait = WebDriverWait(driver, TIMEOUT)
+    # Get HTML elements
+    name = driver.find_element_by_name('Nombre')
+    phone = driver.find_element_by_name('Teléfono')
+    email = driver.find_element_by_name('Email')
+    car_model = driver.find_element_by_name('Modelo')
+    button = driver.find_element_by_class_name('btn.form-btn.item-block')
+    success = driver.find_element_by_xpath('//div[@id="submit-success-popup"]/div/div')
+    # Fill form
+    name.send_keys(row["full_name"])
+    phone.send_keys(row["phone_number"])
+    email.send_keys(row["email"])
+    select = Select(car_model)
+    select.select_by_value('Nuevo T-CROSS')
+    # Submit form
+    button.click()
+    # Wait for the form to be ready again
+    element = wait.until(ec.element_to_be_clickable((By.XPATH, '//div[@id="submit-in-progress-popup"]/div/div')))
+    element = wait.until(ec.element_to_be_clickable((By.XPATH, '//div[@id="submit-success-popup"]/div/div')))
+    element = wait.until(ec.invisibility_of_element((By.XPATH, '//div[@id="submit-success-popup"]/div/div')))
 
-depth = len(data['full_name'])
-
-for i in range (0, depth):
-    driver.find_element_by_xpath("//input[@id='field-2b40cec773350be845715b976924fc96-0']").send_keys(data['full_name'][i])
-    driver.find_element_by_xpath("//input[@id='field-2b40cec773350be845715b976924fc96-1']").send_keys(data['phone_number'][i])
-    driver.find_element_by_xpath("//input[@id='field-2b40cec773350be845715b976924fc96-2']").send_keys(data['email'][i])
-    driver.find_element_by_xpath("//select['field-2b40cec773350be845715b976924fc96-3']/option[text()='Nuevo T-CROSS']").click()
-    driver.find_element_by_xpath('/html/body/main/section[1]/div[3]/div/div[3]/form/div[2]').click()
-
-
-
-
+driver.close()
