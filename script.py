@@ -34,7 +34,7 @@ for index, row in data.iterrows():
     email = driver.find_element_by_name('Email')
     car_model = driver.find_element_by_name('Modelo')
     button = driver.find_element_by_class_name('btn.form-btn.item-block')
-    success = driver.find_element_by_xpath('//div[@id="submit-success-popup"]/div/div')
+    success = driver.find_element_by_xpath('//div[@id="submit-popup"]/div/div')
     # Fill form
     name.send_keys(row["full_name"])
     phone.send_keys(row["phone_number"])
@@ -44,8 +44,8 @@ for index, row in data.iterrows():
     # Submit form
     button.click()
     # Wait for the form to be ready again
-    element = wait.until(ec.element_to_be_clickable((By.XPATH, '//div[@id="submit-in-progress-popup"]/div/div')))
-    element = wait.until(ec.element_to_be_clickable((By.XPATH, '//div[@id="submit-success-popup"]/div/div')))
-    element = wait.until(ec.invisibility_of_element((By.XPATH, '//div[@id="submit-success-popup"]/div/div')))
+    element = wait.until(ec.element_to_be_clickable((By.XPATH, '//div[@id="submit-popup"]/div/div')))
+    element = wait.until(ec.element_to_be_clickable((By.XPATH, '//div[@id="submit-popup"]/div/div')))
+    element = wait.until(ec.invisibility_of_element((By.XPATH, '//div[@id="submit-popup"]/div/div')))
 
 driver.close()
