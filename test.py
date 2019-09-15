@@ -32,8 +32,9 @@ try:
 except:
     pass
 
-for i in range (0,2):
+for i in range (0,depth):
     driver.find_element_by_xpath("//input[@id='field-2b40cec773350be845715b976924fc96-0']").send_keys(data['full_name'][i])
     driver.find_element_by_xpath("//input[@id='field-2b40cec773350be845715b976924fc96-1']").send_keys(data['phone_number'][i])
     driver.find_element_by_xpath("//input[@id='field-2b40cec773350be845715b976924fc96-2']").send_keys(data['email'][i])
+    driver.find_element_by_xpath("//select['field-2b40cec773350be845715b976924fc96-3']/option[text()='Nuevo T-CROSS']").click()
 
