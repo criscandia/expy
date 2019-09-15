@@ -9,23 +9,19 @@
     :license: AGPL, see LICENSE for more details.
 
     Usage:
-        prospector.py CRMID TOKEN CARMODEL [--loglevel=LOGLEVEL] [--filename=FILENAME]
+        prospector.py (--crm-id=<crm_id> | CRMID) (--token=<token> | TOKEN) (--car-model=<car_model> | CARMODEL) [--loglevel=LOGLEVEL] [--filename=<path>]
         prospector.py (-h | --help | -v | --version)
     
     Arguments:
         CRMID           The "crm_id" loaded on Novoleads
         TOKEN           Returned "token" from Novoleads API when campaign was created
-        LOGLEVEL        CRITICAL    50
-                        ERROR 	    40
-                        WARNING     30
-                        INFO        20 - default
-                        DEBUG 	    10
-                        NOTSET      0
-        FILENAME        input CSV filename
+        CARMODEL        The "car_model" for this CSV
 
     Options:
-        -v, --version   Prints software version
-        -h, --help      This message help and exit
+        -v, --version       Prints software version
+        -h, --help          This message help and exit
+        --filename=<path>   Filename path [default: vw.csv]
+        --loglevel=LOGLEVEL Sets the log level [default: INFO]
 """
 import logging
 import time
@@ -34,12 +30,13 @@ from pandas import read_csv
 import requests
 
 
-logger = logging.getLogger(__name__)
+__version__ = '0.0.2'
+
+logger = logging.getLogger("Prospector")
 logger.setLevel(logging.DEBUG)
 
 # Adds Logging Console Handler
-log_format = "".join(["[%(asctime)s] %(levelname)s: ",
-                    "%(funcName)15s() - %(message)s"])
+log_format = "".join(["[%(asctime)s] %(levelname)s: %(message)s"])
 
 formatter = logging.Formatter(fmt=log_format)
 # Format UTC Time
@@ -51,7 +48,7 @@ logger.addHandler(ch)
 
 
 if __name__ == '__main__':
-    args = docopt(__doc__, version='0.0.1')
+    args = docopt(__doc__, version=__version__)
 
     debug = False
     if args['--loglevel']:
@@ -59,11 +56,11 @@ if __name__ == '__main__':
         if args['--loglevel'] == 'DEBUG':
             debug = True
 
-    CRMID = args['CRMID']
+    CRMID = args['CRMID'] or args['--crm-id']
     URL = f"https://api.automotoresonline.com/iz/campaign/{CRMID}/prospects/"
-    TOKEN = args['TOKEN']
+    TOKEN = args['TOKEN'] or args['--token']
     FILENAME = args['--filename'] if args['--filename'] else 'vw.csv'
-    CARMODEL = args["CARMODEL"]
+    CARMODEL = args["CARMODEL"] or ['--car-model']
     logger.debug(f"CRMID: {CRMID}, TOKEN: {TOKEN}, FILENAME: {FILENAME}, URL: {URL}, CARMODEL: {CARMODEL}")
 
     data = read_csv(FILENAME,
