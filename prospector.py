@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
     Prospector
     ~~~~~~~~~~
@@ -9,7 +10,7 @@
     :license: AGPL, see LICENSE for more details.
 
     Usage:
-        prospector.py (--crm-id=<crm_id> | CRMID) (--token=<token> | TOKEN) (--car-model=<car_model> | CARMODEL) [--loglevel=LOGLEVEL] [--filename=<path>]
+        prospector.py (--crm-id=<crm_id> | CRMID) (--token=<token> | TOKEN) (--car-model=<car_model> | CARMODEL) [--car-brand=<car_brand>] [--loglevel=LOGLEVEL] [--filename=<path>] [--url=<url>]
         prospector.py (-h | --help | -v | --version)
     
     Arguments:
@@ -18,10 +19,12 @@
         CARMODEL        The "car_model" for this CSV
 
     Options:
-        -v, --version       Prints software version
-        -h, --help          This message help and exit
-        --filename=<path>   Filename path [default: vw.csv]
-        --loglevel=LOGLEVEL Sets the log level [default: INFO]
+        -v, --version               Prints software version
+        -h, --help                  This message help and exit
+        --filename=<path>           Filename path [default: vw.csv]
+        --loglevel=LOGLEVEL         Sets the log level [default: INFO]
+        --car-brand=<car_brand>     The "car_brand" for this CSV
+        --url=<url>                 Novoleads API URL
 """
 import logging
 import time
@@ -30,7 +33,7 @@ from pandas import read_csv
 import requests
 
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 
 logger = logging.getLogger("Prospector")
 logger.setLevel(logging.DEBUG)
@@ -57,16 +60,16 @@ if __name__ == '__main__':
             debug = True
 
     CRMID = args['CRMID'] or args['--crm-id']
-    URL = f"https://api.automotoresonline.com/iz/campaign/{CRMID}/prospects/"
+    URL = f"https://api.automotoresonline.com/iz/campaign/{CRMID}/prospects/" if args["--url"] is None else args["--url"]
     TOKEN = args['TOKEN'] or args['--token']
     FILENAME = args['--filename'] if args['--filename'] else 'vw.csv'
-    CARMODEL = args["CARMODEL"] or ['--car-model']
-    logger.debug(f"CRMID: {CRMID}, TOKEN: {TOKEN}, FILENAME: {FILENAME}, URL: {URL}, CARMODEL: {CARMODEL}")
+    CARMODEL = args["CARMODEL"] or args['--car-model']
+    CARBRAND = args.get('--car-brand')
+    logger.debug("CRMID: %s, TOKEN: %s, FILENAME: %s, URL: %s, CARMODEL: %s",CRMID, TOKEN, FILENAME, URL, CARMODEL)
 
     data = read_csv(FILENAME,
         encoding='UTF-16',
         index_col=False,
-        #delim_whitespace=True,
         sep='\t',
         squeeze=True,
         usecols=['full_name', 'phone_number', 'email'],
@@ -83,10 +86,14 @@ if __name__ == '__main__':
             "phone": row["phone_number"],
             "car_model": CARMODEL,
         }
-        logger.debug(f"=== Processing record [{index}]: {payload}")
+        if CARBRAND:
+            payload['car_brand'] = CARBRAND
+        logger.debug("=== Processing record [%s]: %s", index, payload)
+        breakpoint()
         response = requests.post(URL, json=payload, headers=headers)
+
         if response.status_code == 201:
-            logger.info(f"Posted {payload}")
+            logger.info("Posted %s", payload)
         else:
-            logger.error(f"Something went wrong with {payload}")
-            logger.debug(f"{response.status_code} {response.text}")
+            logger.error("Something went wrong with %s", payload)
+            logger.debug("\t %s %s", response.status_code, response.text)

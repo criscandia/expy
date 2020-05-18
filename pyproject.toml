@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "expy"
+version = "0.0.3"
+description = "CLI utility for using with novoleads API"
+authors = ["Leandro E. Colombo Viña <lecovi@zenbook>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+requests = "^2.23.0"
+pandas = "^1.0.3"
+docopt = "^0.6.2"
+selenium = "^3.141.0"
+
+[tool.poetry.dev-dependencies]
+pylint = "^2.5.2"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
