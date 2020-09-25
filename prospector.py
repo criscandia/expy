@@ -89,7 +89,6 @@ if __name__ == '__main__':
         if CARBRAND:
             payload['car_brand'] = CARBRAND
         logger.debug("=== Processing record [%s]: %s", index, payload)
-        breakpoint()
         response = requests.post(URL, json=payload, headers=headers)
 
         if response.status_code == 201:
