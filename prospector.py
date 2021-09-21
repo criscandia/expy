@@ -31,7 +31,7 @@ import time
 from docopt import docopt
 from pandas import read_csv
 import requests
-
+import re
 
 __version__ = '0.0.3'
 
@@ -75,7 +75,7 @@ if __name__ == '__main__':
         usecols=['full_name', 'phone_number', 'email'],
         header=0,
         )
-
+    data.phone_number = data.phone_number.str.replace('[^\d]+', '', regex=True)
     for index, row in data.iterrows():
         headers = {
             "Authorization": TOKEN
