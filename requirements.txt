@@ -31,7 +31,7 @@ pep517==0.5.0
 Pillow-SIMD==5.3.0.post1
 powerline-shell==0.7.0
 progress==1.5
-psutil==5.6.2
+psutil==5.6.6
 py3status==3.19
 pycairo==1.18.1
 pycups==1.9.74
